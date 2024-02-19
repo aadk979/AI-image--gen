@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Generation</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card {
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        #loading, #error {
+            margin-top: 20px;
+        }
+
+        #imageContainer {
+            max-width: 100%;
+            max-height: 80vh;
+            overflow: auto;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        #generatedImage {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .loader {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-body">
+                        <p>
+                            <p>
+                                <h5><strong>Welcome to our cutting-edge image generation system powered by the Lykon/dreamshaper-xl-v2-turbo model.</strong></h5><br/>
+                                With a license that prioritizes openness and accessibility (openrail++), we bring you a revolutionary tool for creating stunning visuals effortlessly.
+                            </p>
+                        </p>
+                    </div>
+                </div> 
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Enter Prompt</h5>
+                                <div class="form-group">
+                                    <input type="text" id="prompt" name="prompt" class="form-control" style="word-wrap: break-word; overflow-wrap: break-word;">
+                                </div>
+                                <button id="generateBtn" class="btn btn-primary btn-block">Generate Image</button>
+                                <div id="loading" class="text-center d-none">
+                                    <div class="loader"></div>
+                                </div>
+                                <div id="error" class="text-center d-none">
+                                    <p class="error-message">Internal Server Error. Please try again later.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Generated Image</h5>
+                                <div id="imageContainer">
+                                    <img id="generatedImage" src="" class="img-fluid">
+                                </div>
+                                <div id="downloadBtn" class="text-center mt-3 d-none">
+                                    <a id="downloadLink" href="#" class="btn btn-success" download="generated_image.jpg">Download Image</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('generateBtn').addEventListener('click', async () => {
+            try {
+                const prompt = document.getElementById('prompt').value;
+                document.getElementById('loading').classList.remove('d-none'); // Show loading spinner
+                
+                
+                const response = await fetch('/image-generation', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ "prompt": prompt})
+                });
+              if (response.ok) {
+                  const imageUrl = await response.blob();
+                  const imageUrlObjectURL = URL.createObjectURL(imageUrl);
+                  document.getElementById('generatedImage').src = imageUrlObjectURL;
+
+                  // Set the href attribute of the download link
+                  document.getElementById('downloadLink').href = imageUrlObjectURL;
+
+                  document.getElementById('prompt').value = ''; // Clear prompt text
+                  document.getElementById('downloadBtn').classList.remove('d-none'); // Show download button
+              }else {
+                    if(response.status === 600){
+                      document.getElementById('prompt').value = '';
+                      alert('Prompt contains NSFW content. Please try a different prompt')
+                    } else {
+                      setTimeout(()=>{
+                        document.getElementById('error').classList.add('d-none');
+                      },2000)
+                      document.getElementById('error').classList.remove('d-none');
+                    }
+                   // Show error message
+                }
+            } catch (error) {
+                document.getElementById('error').classList.remove('d-none');
+            } finally {
+                document.getElementById('loading').classList.add('d-none'); // Hide loading spinner after request completes
+            }
+        });
+    </script>
+</body>
+</html>
