@@ -308,7 +308,7 @@ function containsNSFW(text) {
 }
 
 const API_URL = "https://api-inference.huggingface.co/models/Lykon/dreamshaper-xl-v2-turbo";
-const API_TOKEN = "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";
+const API_TOKEN = "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";
 
 app.use(express.json());
 
