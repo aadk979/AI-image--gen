@@ -339,7 +339,7 @@ app.post('/image-generation', async (req, res) => {
     try {
         const prompt = req.body.prompt;
         if (containsNSFW(prompt)) {
-            res.status(600).send('NSFW content detected. Please provide a non-NSFW prompt.');
+            res.status(400).send('NSFW content detected. Please provide a non-NSFW prompt.');
         } else {
             const imageBytes = await queryAPI(prompt);
             // Send the image directly to the client without saving to disk
