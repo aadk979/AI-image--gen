@@ -135,7 +135,7 @@
                   document.getElementById('prompt').value = ''; // Clear prompt text
                   document.getElementById('downloadBtn').classList.remove('d-none'); // Show download button
               }else {
-                    if(response.status === 600){
+                    if(response.status === 400){
                       document.getElementById('prompt').value = '';
                       alert('Prompt contains NSFW content. Please try a different prompt')
                     } else {
